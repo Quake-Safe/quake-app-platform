@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import * as joi from 'joi';
+import { AuthModule } from './auth/auth.module';
 
 const config = ConfigModule.forRoot({
   isGlobal: true,
@@ -19,7 +20,7 @@ const config = ConfigModule.forRoot({
   },
 });
 @Module({
-  imports: [config, UserModule],
+  imports: [config, UserModule, AuthModule],
   providers: [],
 })
 export class AppModule {}
