@@ -7,7 +7,9 @@ import * as bcrypt from 'bcrypt';
 import { ApiCreatedResponseCommon } from 'src/common/decorators/api-created-response-decorator';
 import { ApiOkArrayResponseCommon } from 'src/common/decorators/api-ok-array-response-decorator';
 import { Prisma } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
