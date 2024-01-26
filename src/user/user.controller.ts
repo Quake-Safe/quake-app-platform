@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Put,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiResponseDto } from 'src/common/dtos/api-response-dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -14,39 +6,11 @@ import { ApiOkResponseCommon } from 'src/common/decorators/api-ok-response-decor
 import { UserMeDto } from './dto/user-me.dto';
 import { SupabaseAuthGuard } from 'src/auth/guards/supabase-auth.guard';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
-import { UserProfileUpdateDto } from './dto/user-profile-update.dto';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-
-  @Patch('/profile')
-  @ApiBearerAuth()
-  @UseGuards(SupabaseAuthGuard)
-  @ApiOkResponseCommon(UserMeDto)
-  async updateMe(
-    @Request() req: RequestWithUser,
-    @Body() body: UserProfileUpdateDto,
-  ): Promise<ApiResponseDto<UserMeDto | null>> {
-    const profile = await this.userService.updateOne({
-      where: {
-        supabaseId: req.user.id,
-      },
-      input: {
-        firstName: body.firstName,
-        lastName: body.lastName,
-        middleName: body.middleName,
-        avatarUrl: body.avatarUrl,
-      },
-    });
-
-    if (!profile) {
-      return ApiResponseDto.error('User not found.');
-    }
-
-    return ApiResponseDto.success(UserMeDto.fromUserProfile(profile));
-  }
 
   @Get('/me')
   @ApiBearerAuth()

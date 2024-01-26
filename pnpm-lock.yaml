@@ -29,6 +29,9 @@ dependencies:
   '@prisma/client':
     specifier: 5.8.1
     version: 5.8.1(prisma@5.8.1)
+  '@supabase/storage-js':
+    specifier: ^2.5.5
+    version: 2.5.5
   '@supabase/supabase-js':
     specifier: ^2.39.3
     version: 2.39.3
@@ -88,6 +91,9 @@ devDependencies:
   '@types/jest':
     specifier: ^29.5.2
     version: 29.5.11
+  '@types/multer':
+    specifier: ^1.4.11
+    version: 1.4.11
   '@types/node':
     specifier: ^20.3.1
     version: 20.11.5
@@ -1487,6 +1493,12 @@ packages:
 
   /@types/mime@3.0.4:
     resolution: {integrity: sha512-iJt33IQnVRkqeqC7PzBHPTC6fDlRNRW8vjrgqtScAhrmMwe8c4Eo7+fUGTa+XdWrpEgpyKWMYmi2dIwMAYRzPw==}
+    dev: true
+
+  /@types/multer@1.4.11:
+    resolution: {integrity: sha512-svK240gr6LVWvv3YGyhLlA+6LRRWA4mnGIU7RcNmgjBYFl6665wcXrRfxGp5tEPVHUNm5FMcmq7too9bxCwX/w==}
+    dependencies:
+      '@types/express': 4.17.21
     dev: true
 
   /@types/node@20.11.5:
