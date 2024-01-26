@@ -12,6 +12,19 @@ export class UserService {
     });
   }
 
+  async updateOne({
+    where,
+    input,
+  }: {
+    where: Prisma.UserProfileWhereUniqueInput;
+    input: Prisma.UserProfileUpdateInput;
+  }) {
+    return this.db.userProfile.update({
+      data: input,
+      where,
+    });
+  }
+
   async findOne(where: Prisma.UserProfileWhereUniqueInput) {
     return this.db.userProfile.findUnique({
       where,
