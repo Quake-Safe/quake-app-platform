@@ -1,11 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { AuthService } from './auth.service';
 import { ApiResponseDto } from 'src/common/dtos/api-response-dto';
-import { User } from '@supabase/supabase-js';
 import { ApiOkResponseCommon } from 'src/common/decorators/api-ok-response-decorator';
-import { AuthUserDto } from './dtos/auth-user.dto';
+import { AuthLoginResponseDto } from './dtos/auth-login-response.dto';
+import { AuthRegisterResponseDto } from './dtos/auth-register-response.dto';
+import { AuthRegisterDto } from './dtos/auth-register.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -13,16 +14,35 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @ApiBody({ type: AuthLoginDto })
-  @ApiOkResponseCommon(AuthUserDto)
+  @ApiOkResponseCommon(AuthLoginResponseDto)
   @Post('/login')
   async login(
     @Body() authLoginDto: AuthLoginDto,
-  ): Promise<ApiResponseDto<User | null>> {
+  ): Promise<ApiResponseDto<AuthLoginResponseDto>> {
     try {
       const { email, password } = authLoginDto;
-      const user = await this.authService.login(email, password);
+      const { session } = await this.authService.login(email, password);
+      return ApiResponseDto.success({
+        accessToken: session.access_token,
+      });
+    } catch (error) {
+      return ApiResponseDto.error(String(error));
+    }
+  }
 
-      return ApiResponseDto.success(user);
+  @Post('/register')
+  async register(
+    @Body() authRegisterDto: AuthRegisterDto,
+  ): Promise<ApiResponseDto<AuthRegisterResponseDto>> {
+    try {
+      const { email, password, username } = authRegisterDto;
+      const { session } = await this.authService.register(email, password, {
+        username,
+      });
+
+      return ApiResponseDto.success({
+        accessToken: session.access_token,
+      });
     } catch (error) {
       return ApiResponseDto.error(String(error));
     }

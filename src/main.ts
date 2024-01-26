@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle('Quake App Platform')
     .setDescription('The Quake App Platform API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
