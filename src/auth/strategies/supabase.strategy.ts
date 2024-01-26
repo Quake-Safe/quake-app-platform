@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { SupabaseAuthStrategy } from 'nestjs-supabase-auth';
@@ -7,7 +8,7 @@ export class SupabaseSrategy extends PassportStrategy(
   SupabaseAuthStrategy,
   'supabase',
 ) {
-  constructor(configService: ConfigService) {
+  constructor(@Inject(ConfigService) configService: ConfigService) {
     super({
       supabaseKey: configService.get('SUPABASE_KEY') ?? '',
       supabaseUrl: configService.get('SUPABASE_URL') ?? '',

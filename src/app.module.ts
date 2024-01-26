@@ -13,7 +13,9 @@ const config = ConfigModule.forRoot({
       .valid('development', 'production', 'test', 'provision')
       .default('development'),
     PORT: joi.number().default(3000),
-    JWT_SECRET: joi.string().required(),
+    SUPABASE_KEY: joi.string().required(),
+    SUPABASE_URL: joi.string().required(),
+    SUPABASE_JWT_SECRET: joi.string().required(),
   }),
   validationOptions: {
     abortEarly: true,
