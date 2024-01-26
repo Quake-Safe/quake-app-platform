@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { AuthError } from '@supabase/supabase-js';
 import { SupabaseService } from 'src/common/supabase/supabase.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private userService: UserService,
+  ) {}
 
   async register(
     email: string,
@@ -29,6 +33,12 @@ export class AuthService {
       if (!response.data.user) {
         throw new Error('Something went wrong.');
       }
+      // Create a new user profile
+      await this.userService.createOne({
+        email: email,
+        username: data.username,
+        supabaseId: response.data.user.id,
+      });
 
       // Login user after registration
       const {
