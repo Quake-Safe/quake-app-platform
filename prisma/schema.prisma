@@ -8,14 +8,18 @@ datasource db {
   directUrl = env("DATABASE_DIRECT_URL")
 }
 
+enum UserProfileRole {
+  NORMAL
+  GOVERNMENT_AGENCY
+}
+
+// The user profile model is only capable of posting comments and reactions.
+// To the articles and stories of each government agency profile.
 model UserProfile {
   id String @id @default(uuid())
 
   /// The user's Supabase ID
   supabaseId String @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   username String @unique
   email    String @unique
@@ -25,4 +29,86 @@ model UserProfile {
   firstName  String @default("")
   lastName   String @default("")
   middleName String @default("")
+
+  role UserProfileRole @default(NORMAL)
+
+  // Government Agency Details
+  shortName String? @unique
+  fullName  String? @unique
+
+  stories PostStory[]
+  posts   Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_profiles")
+}
+
+// A post that is similar to a story in facebook/instagram.
+model PostStory {
+  id String @id @default(uuid())
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  title String
+
+  // This can be a markdown or a html
+  content String
+
+  authorId String
+  author   UserProfile @relation(fields: [authorId], references: [id])
+
+  // The media that is attached to the story (image/video)
+  media   PostStoryMedia @relation(fields: [mediaId], references: [id])
+  mediaId String         @unique
+
+  @@map("post_story")
+}
+
+enum PostStoryMediaType {
+  IMAGE
+  VIDEO
+}
+
+model PostStoryMedia {
+  id String @id @default(uuid())
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // The image/video url
+  url String
+
+  // The type of the media (image/video)
+  type PostStoryMediaType @default(IMAGE)
+
+  story PostStory?
+
+  @@map("post_story_media")
+}
+
+model Post {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Soft delete
+  deletedAt DateTime?
+
+  title   String
+  // This can be a markdown or a html
+  content String
+
+  authorId String
+  author   UserProfile @relation(fields: [authorId], references: [id])
+
+  // The media that is attached to the story (image/video)
+  thumbnailUrl String?
+
+  @@map("posts")
 }
