@@ -74,6 +74,12 @@ export class SupabaseStorageService {
     filePath: string,
     file: Buffer,
   ): Promise<string> {
+    const isExistingBucket = await this.isBucketExists(bucket);
+
+    if (!isExistingBucket) {
+      await this.createBucket(bucket);
+    }
+
     const uploadResponse = await this.supabase.storage
       .from(bucket)
       .upload(filePath, file);

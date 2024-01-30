@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as joi from 'joi';
 import { AuthModule } from './auth/auth.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
+import { PostModule } from './post/post.module';
 
 const config = ConfigModule.forRoot({
   isGlobal: true,
@@ -23,7 +24,7 @@ const config = ConfigModule.forRoot({
   },
 });
 @Module({
-  imports: [config, UserModule, AuthModule, UserProfileModule],
+  imports: [config, UserModule, AuthModule, UserProfileModule, PostModule],
   providers: [],
 })
 export class AppModule {}

@@ -1,7 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserProfile } from '@prisma/client';
+import { $Enums, UserProfile } from '@prisma/client';
 
 export class UserMeDto implements UserProfile {
+  @ApiProperty({
+    description: 'The role of the user.',
+    enum: $Enums.UserProfileRole,
+  })
+  role: $Enums.UserProfileRole;
+
+  @ApiProperty({
+    description: 'The short name of a government agency.',
+  })
+  shortName: string | null;
+  @ApiProperty({
+    description: 'The full name of a government agency.',
+  })
+  fullName: string | null;
+
   @ApiProperty({
     description: 'The supabase id of the user.',
   })
@@ -41,6 +56,10 @@ export class UserMeDto implements UserProfile {
     userMeDto.id = userProfile.id;
     userMeDto.email = userProfile.email;
     userMeDto.username = userProfile.username;
+    userMeDto.fullName = userProfile.fullName;
+    userMeDto.shortName = userProfile.shortName;
+    userMeDto.role = userProfile.role;
+
     return userMeDto;
   }
 }
