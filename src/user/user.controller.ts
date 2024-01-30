@@ -20,7 +20,7 @@ export class UserController {
     @Request() req: RequestWithUser,
   ): Promise<ApiResponseDto<UserMeDto | null>> {
     const profile = await this.userService.findOne({
-      supabaseId: req.user.id,
+      id: req.user.id,
     });
 
     if (!profile) {

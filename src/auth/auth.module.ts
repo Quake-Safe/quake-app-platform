@@ -5,9 +5,10 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { SupabaseStrategy } from './strategies/supabase.strategy';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from 'src/common/database/database.module';
 
 @Module({
-  imports: [UserModule, PassportModule, ConfigModule],
+  imports: [UserModule, PassportModule, ConfigModule, DatabaseModule],
   providers: [AuthService, SupabaseStrategy],
   controllers: [AuthController],
   exports: [AuthService],

@@ -9,6 +9,7 @@ import {
 import { Request } from 'express';
 import { ExtractJwt, JwtFromRequestFunction } from 'passport-jwt';
 import { Strategy } from 'passport-strategy';
+import { DatabaseService } from 'src/common/database/database.service';
 
 export class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
   readonly name = 'SUPABASE_AUTH';
@@ -18,7 +19,10 @@ export class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
   success: (user: any, info: any) => void;
   fail: Strategy['fail'];
 
-  constructor(@Inject(ConfigService) configService: ConfigService) {
+  constructor(
+    @Inject(ConfigService) configService: ConfigService,
+    @Inject(DatabaseService) private db: DatabaseService,
+  ) {
     super();
 
     this.supabase = createClient(
@@ -56,6 +60,12 @@ export class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
       return;
     }
 
-    this.success(result, {});
+    const user = await this.db.userProfile.findFirst({
+      where: {
+        supabaseId: result.id,
+      },
+    });
+
+    this.success(user, {});
   }
 }

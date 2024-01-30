@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { ApiBearerAuth, ApiConsumes, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SupabaseAuthGuard } from 'src/auth/guards/supabase-auth.guard';
 import { ApiCreatedResponseCommon } from 'src/common/decorators/api-created-response-decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
@@ -19,7 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOkArrayResponseCommon } from 'src/common/decorators/api-ok-array-response-decorator';
 import { PostDto } from './dtos/post-dto';
 import { ApiResponseDto } from 'src/common/dtos/api-response-dto';
-
+@ApiTags('Post')
 @Controller('post')
 export class PostController {
   constructor(private postService: PostService) {}
@@ -41,7 +41,7 @@ export class PostController {
         title: createOneDto.title,
         author: {
           connect: {
-            supabaseId: req.user.id,
+            id: req.user.id,
           },
         },
       },

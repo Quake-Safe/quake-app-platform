@@ -1,5 +1,5 @@
-import { AuthUser } from '@supabase/supabase-js';
+import { UserProfile } from '@prisma/client';
 
 export interface RequestWithUser extends Request {
-  user: AuthUser;
+  user: UserProfile;
 }

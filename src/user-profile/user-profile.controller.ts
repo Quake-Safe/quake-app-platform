@@ -66,7 +66,7 @@ export class UserProfileController {
   ): Promise<ApiResponseDto<string>> {
     const profile = await this.userService.updateOne({
       where: {
-        supabaseId: req.user.id,
+        id: req.user.id,
       },
       input: {
         firstName: body.firstName,
