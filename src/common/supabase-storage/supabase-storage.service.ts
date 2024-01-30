@@ -69,6 +69,13 @@ export class SupabaseStorageService {
     }
   }
 
+  /**
+   * Returns the public url of the file upon successful upload.
+   * @param bucket The name of the bucket to upload the file to.
+   * @param filePath The path of the file to upload.
+   * @param file The file to upload.
+   * @returns
+   */
   async uploadFile(
     bucket: string,
     filePath: string,

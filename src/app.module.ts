@@ -5,6 +5,7 @@ import * as joi from 'joi';
 import { AuthModule } from './auth/auth.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { PostModule } from './post/post.module';
+import { MediaModule } from './media/media.module';
 
 const config = ConfigModule.forRoot({
   isGlobal: true,
@@ -24,7 +25,14 @@ const config = ConfigModule.forRoot({
   },
 });
 @Module({
-  imports: [config, UserModule, AuthModule, UserProfileModule, PostModule],
+  imports: [
+    config,
+    UserModule,
+    AuthModule,
+    UserProfileModule,
+    PostModule,
+    MediaModule,
+  ],
   providers: [],
 })
 export class AppModule {}

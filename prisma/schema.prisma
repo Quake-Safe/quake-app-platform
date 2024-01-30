@@ -62,33 +62,40 @@ model PostStory {
   author   UserProfile @relation(fields: [authorId], references: [id])
 
   // The media that is attached to the story (image/video)
-  media   PostStoryMedia @relation(fields: [mediaId], references: [id])
-  mediaId String         @unique
+  media   Media  @relation(fields: [mediaId], references: [id])
+  mediaId String @unique
 
   @@map("post_story")
 }
 
-enum PostStoryMediaType {
+enum MediaType {
   IMAGE
   VIDEO
 }
 
-model PostStoryMedia {
+model Media {
   id String @id @default(uuid())
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  // The image/video url
-  url String
+  // The image/video url which we can use to display the image/video
+  publicUrl String
+
+  // The original file name without being processed
+  originalFileName String
+
+  // The file name that has been processed
+  fileName String
 
   // The type of the media (image/video)
-  type PostStoryMediaType @default(IMAGE)
+  type MediaType @default(IMAGE)
 
   story PostStory?
+  post  Post?
 
-  @@map("post_story_media")
+  @@map("media")
 }
 
 model Post {
@@ -100,7 +107,8 @@ model Post {
   // Soft delete
   deletedAt DateTime?
 
-  title   String
+  title String
+
   // This can be a markdown or a html
   content String
 
@@ -108,7 +116,8 @@ model Post {
   author   UserProfile @relation(fields: [authorId], references: [id])
 
   // The media that is attached to the story (image/video)
-  thumbnailUrl String?
+  media   Media  @relation(fields: [mediaId], references: [id])
+  mediaId String @unique
 
   @@map("posts")
 }
