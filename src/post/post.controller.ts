@@ -15,7 +15,6 @@ import { PostService } from './post.service';
 import {
   ApiBearerAuth,
   ApiConsumes,
-  ApiOkResponse,
   ApiParam,
   ApiQuery,
   ApiTags,
@@ -29,14 +28,15 @@ import { ApiOkArrayResponseCommon } from 'src/common/decorators/api-ok-array-res
 import { PostDto } from './dtos/post-dto';
 import { ApiResponseDto } from 'src/common/dtos/api-response-dto';
 import { ApiOkResponseCommon } from 'src/common/decorators/api-ok-response-decorator';
+import { RoleAuthGuard } from 'src/auth/guards/role-auth.guard';
 @ApiTags('Post')
+@ApiBearerAuth()
+@UseGuards(SupabaseAuthGuard)
 @Controller('post')
 export class PostController {
   constructor(private postService: PostService) {}
 
   @Post('/create')
-  @ApiBearerAuth()
-  @UseGuards(SupabaseAuthGuard)
   @UseInterceptors(FileInterceptor('thumbnail'))
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponseCommon(PostDto)
@@ -89,8 +89,6 @@ export class PostController {
   }
 
   @Delete('/:id')
-  @ApiBearerAuth()
-  @UseGuards(SupabaseAuthGuard)
   @ApiParam({
     name: 'id',
     description: 'The id of the post to be deleted.',

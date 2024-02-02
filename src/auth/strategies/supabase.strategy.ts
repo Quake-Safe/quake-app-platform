@@ -48,7 +48,6 @@ export class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
     }
 
     const response = await this.supabase.auth.getUser(idToken);
-
     if (response.error) {
       this.fail('Unauthorized', 401);
       return;
@@ -59,7 +58,6 @@ export class SupabaseStrategy extends PassportStrategy(Strategy, 'supabase') {
       this.fail('Unauthorized', 401);
       return;
     }
-
     const user = await this.db.userProfile.findFirst({
       where: {
         supabaseId: result.id,
