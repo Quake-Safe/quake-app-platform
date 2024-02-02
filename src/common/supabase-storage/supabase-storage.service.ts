@@ -40,9 +40,7 @@ export class SupabaseStorageService {
   }
 
   async isFileExists(bucket: string, fileName: string): Promise<boolean> {
-    const { data, error } = await this.supabase.storage
-      .from(bucket)
-      .list('', { limit: 1 });
+    const { data, error } = await this.supabase.storage.from(bucket).list('');
 
     if (error) {
       throw error;

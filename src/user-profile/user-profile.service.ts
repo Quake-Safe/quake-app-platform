@@ -46,7 +46,7 @@ export class UserProfileService {
           avatarUrl: url,
         },
         where: {
-          supabaseId: userId,
+          id: userId,
         },
       });
 

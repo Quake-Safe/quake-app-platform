@@ -72,7 +72,8 @@ export class UserProfileController {
         firstName: body.firstName,
         lastName: body.lastName,
         middleName: body.middleName,
-        avatarUrl: body.avatarUrl,
+        shortName: body.shortName,
+        fullName: body.fullName,
       },
     });
 

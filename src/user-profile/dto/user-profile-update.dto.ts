@@ -11,5 +11,8 @@ export class UserProfileUpdateDto {
   middleName?: string;
 
   @ApiPropertyOptional()
-  avatarUrl?: string;
+  fullName?: string;
+
+  @ApiPropertyOptional()
+  shortName?: string;
 }
