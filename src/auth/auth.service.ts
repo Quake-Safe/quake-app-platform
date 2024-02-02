@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UserProfileRole } from '@prisma/client';
 import { AuthError } from '@supabase/supabase-js';
 import { SupabaseService } from 'src/common/supabase/supabase.service';
 import { UserService } from 'src/user/user.service';
@@ -15,15 +16,13 @@ export class AuthService {
     password: string,
     data: {
       username: string;
+      role: string;
     },
   ) {
     try {
       const response = await this.supabaseService.client.auth.signUp({
         email,
         password,
-        options: {
-          data,
-        },
       });
 
       if (response.error) {
@@ -37,6 +36,7 @@ export class AuthService {
       await this.userService.createOne({
         email: email,
         username: data.username,
+        role: data.role as UserProfileRole,
         supabaseId: response.data.user.id,
       });
 

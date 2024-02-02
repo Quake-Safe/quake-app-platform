@@ -29,6 +29,7 @@ import { PostDto } from './dtos/post-dto';
 import { ApiResponseDto } from 'src/common/dtos/api-response-dto';
 import { ApiOkResponseCommon } from 'src/common/decorators/api-ok-response-decorator';
 import { RoleAuthGuard } from 'src/auth/guards/role-auth.guard';
+import { AuthRoles } from 'src/auth/reflectors/auth-roles.reflector';
 @ApiTags('Post')
 @ApiBearerAuth()
 @UseGuards(SupabaseAuthGuard)
@@ -37,6 +38,8 @@ export class PostController {
   constructor(private postService: PostService) {}
 
   @Post('/create')
+  @AuthRoles(['GOVERNMENT_AGENCY'])
+  @UseGuards(RoleAuthGuard)
   @UseInterceptors(FileInterceptor('thumbnail'))
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponseCommon(PostDto)
@@ -89,6 +92,8 @@ export class PostController {
   }
 
   @Delete('/:id')
+  @AuthRoles(['GOVERNMENT_AGENCY'])
+  @UseGuards(RoleAuthGuard)
   @ApiParam({
     name: 'id',
     description: 'The id of the post to be deleted.',

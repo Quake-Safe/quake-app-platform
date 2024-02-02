@@ -35,9 +35,10 @@ export class AuthController {
     @Body() authRegisterDto: AuthRegisterDto,
   ): Promise<ApiResponseDto<AuthRegisterResponseDto>> {
     try {
-      const { email, password, username } = authRegisterDto;
+      const { email, password, username, role } = authRegisterDto;
       const { session } = await this.authService.register(email, password, {
         username,
+        role,
       });
 
       return ApiResponseDto.success({

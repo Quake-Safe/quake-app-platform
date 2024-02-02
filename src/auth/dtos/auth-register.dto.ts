@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { $Enums } from '@prisma/client';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class AuthRegisterDto {
@@ -23,4 +24,13 @@ export class AuthRegisterDto {
     default: 'password',
   })
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Role',
+    default: $Enums.UserProfileRole.GOVERNMENT_AGENCY,
+    enum: $Enums.UserProfileRole,
+  })
+  role: $Enums.UserProfileRole;
 }

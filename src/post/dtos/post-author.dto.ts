@@ -10,7 +10,7 @@ export class PostAuthorDto {
   public static fromUser(user: UserProfile) {
     const dto = new PostAuthorDto();
     dto.id = user.id;
-    dto.name = user.fullName ?? 'Unknown Author';
+    dto.name = user.fullName ?? user.username;
 
     return dto;
   }
