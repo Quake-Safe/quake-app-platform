@@ -39,8 +39,10 @@ model UserProfile {
   stories PostStory[]
   posts   Post[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  comments  PostComment[]
+  likes     PostLikes[]
 
   @@map("user_profiles")
 }
@@ -119,5 +121,52 @@ model Post {
   media   Media  @relation(fields: [mediaId], references: [id])
   mediaId String @unique
 
+  /// The total number of comments
+  totalComments Int           @default(0)
+  comments      PostComment[]
+
+  // The total number of likes that post has this is used to display the total number of likes
+  // a
+  totalLikes Int         @default(0)
+  likes      PostLikes[]
+
   @@map("posts")
+}
+
+model PostComment {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Soft delete
+  deletedAt DateTime?
+
+  content String
+
+  authorId String
+  author   UserProfile @relation(fields: [authorId], references: [id])
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  @@map("post_comments")
+}
+
+model PostLikes {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Soft delete
+  deletedAt DateTime?
+
+  authorId String
+  author   UserProfile @relation(fields: [authorId], references: [id])
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  @@map("post_likes")
 }

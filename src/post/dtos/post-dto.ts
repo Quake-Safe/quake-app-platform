@@ -5,7 +5,14 @@ import { PostAuthorDto } from './post-author.dto';
 
 export class PostDto implements Post {
   @ApiProperty()
+  totalComments: number;
+
+  @ApiProperty()
+  totalLikes: number;
+
+  @ApiProperty()
   id: string;
+
   @ApiProperty({
     type: 'string',
   })
@@ -30,6 +37,7 @@ export class PostDto implements Post {
 
   @ApiProperty()
   authorId: string;
+
   @ApiProperty({
     type: PostMediaDto,
   })
@@ -40,6 +48,18 @@ export class PostDto implements Post {
   })
   author: PostAuthorDto;
 
+  @ApiProperty({
+    description: 'Indicates if the user has liked the post.',
+    default: false,
+  })
+  hasLiked: boolean = false;
+
+  @ApiProperty({
+    description: 'Indicates if the user has commented on the post.',
+    default: false,
+  })
+  hasCommented: boolean = false;
+
   public static fromPost(
     post: Prisma.PostGetPayload<{
       include: {
@@ -47,6 +67,8 @@ export class PostDto implements Post {
         media: true;
       };
     }>,
+    hasLiked?: boolean,
+    hasCommented?: boolean,
   ) {
     const dto = new PostDto();
     dto.id = post.id;
@@ -57,6 +79,10 @@ export class PostDto implements Post {
     dto.content = post.content;
     dto.mediaId = post.mediaId;
     dto.authorId = post.authorId;
+    dto.totalComments = post.totalComments;
+    dto.totalLikes = post.totalLikes;
+    dto.hasLiked = hasLiked ?? false;
+    dto.hasCommented = hasCommented ?? false;
 
     dto.media = PostMediaDto.fromMedia(post.media);
     dto.author = PostAuthorDto.fromUser(post.author);

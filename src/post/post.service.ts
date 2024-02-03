@@ -104,4 +104,99 @@ export class PostService {
       },
     });
   }
+
+  async hasUserLikedPost({
+    userId,
+    postId,
+  }: {
+    userId: string;
+    postId: string;
+  }) {
+    const postLike = await this.db.postLikes.findFirst({
+      where: {
+        authorId: userId,
+        postId: postId,
+      },
+    });
+
+    console.log('Post Like: ', postLike);
+
+    return postLike !== null;
+  }
+
+  async likePost({ userId, postId }: { userId: string; postId: string }) {
+    return this.db.$transaction(async (db) => {
+      await db.postLikes.create({
+        data: {
+          authorId: userId,
+          postId: postId,
+        },
+      });
+
+      const post = await this.db.post.update({
+        data: {
+          totalLikes: {
+            increment: 1,
+          },
+        },
+        where: {
+          id: postId,
+        },
+        include: {
+          author: true,
+          media: true,
+        },
+      });
+
+      return post;
+    });
+  }
+
+  async unlikePost({ userId, postId }: { userId: string; postId: string }) {
+    return this.db.$transaction(async (db) => {
+      const like = await db.postLikes.findFirst({
+        where: {
+          authorId: userId,
+          postId: postId,
+        },
+      });
+
+      if (!like) {
+        throw new Error('Like not found');
+      }
+
+      const post = await this.db.post.update({
+        data: {
+          totalLikes: {
+            decrement: 1,
+          },
+        },
+        where: {
+          id: postId,
+        },
+        include: {
+          author: true,
+          media: true,
+        },
+      });
+
+      return post;
+    });
+  }
+
+  async getAllUserLikes(userId: string) {
+    return this.db.postLikes.findMany({
+      where: {
+        authorId: userId,
+      },
+    });
+  }
+
+  async getAllUserComments(userId: string) {
+    return this.db.postComment.findMany({
+      where: {
+        authorId: userId,
+      },
+    });
+  }
 }

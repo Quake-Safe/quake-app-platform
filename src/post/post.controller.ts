@@ -75,7 +75,10 @@ export class PostController {
     required: false,
   })
   @ApiOkArrayResponseCommon(PostDto)
-  async getAll(@Query('author') author?: string) {
+  async getAll(
+    @Request() req: RequestWithUser,
+    @Query('author') author?: string,
+  ) {
     try {
       const posts = await this.postService.getAll({
         author: {
@@ -83,9 +86,19 @@ export class PostController {
         },
       });
 
-      return ApiResponseDto.success(
-        posts.map((post) => PostDto.fromPost(post)),
+      const likedPostIds = new Set(
+        (await this.postService.getAllUserLikes(req.user.id)).map(
+          (like) => like.postId,
+        ),
       );
+
+      const postDtos = posts.map((post) => {
+        const hasLiked = likedPostIds.has(post.id);
+
+        return PostDto.fromPost(post, hasLiked);
+      });
+
+      return ApiResponseDto.success(postDtos);
     } catch (error) {
       return ApiResponseDto.error(error);
     }
@@ -118,6 +131,69 @@ export class PostController {
       });
 
       return ApiResponseDto.success(PostDto.fromPost(deletedPost));
+    } catch (error) {
+      return ApiResponseDto.error(String(error));
+    }
+  }
+
+  @Post('/:id/like')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the post to be liked.',
+  })
+  @ApiOkResponseCommon(String)
+  async likePost(@Request() req: RequestWithUser, @Param('id') id: string) {
+    try {
+      const post = await this.postService.getOne({
+        id: id,
+      });
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      const hasLiked = await this.postService.hasUserLikedPost({
+        postId: post.id,
+        userId: req.user.id,
+      });
+
+      if (hasLiked) {
+        throw new Error('You have already liked this post');
+      }
+
+      await this.postService.likePost({
+        postId: post.id,
+        userId: req.user.id,
+      });
+
+      return ApiResponseDto.success('Post liked');
+    } catch (error) {
+      return ApiResponseDto.error(String(error));
+    }
+  }
+
+  @Delete('/:id/like')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the post to be unliked.',
+  })
+  @ApiOkResponseCommon(String)
+  async unlikePost(@Request() req: RequestWithUser, @Param('id') id: string) {
+    try {
+      const post = await this.postService.getOne({
+        id: id,
+      });
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      await this.postService.unlikePost({
+        postId: post.id,
+        userId: req.user.id,
+      });
+
+      return ApiResponseDto.success('Post unliked');
     } catch (error) {
       return ApiResponseDto.error(String(error));
     }
