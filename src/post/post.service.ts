@@ -180,6 +180,12 @@ export class PostService {
         },
       });
 
+      await db.postLikes.delete({
+        where: {
+          id: like.id,
+        },
+      });
+
       return post;
     });
   }
