@@ -198,10 +198,40 @@ export class PostService {
     });
   }
 
-  async getAllUserComments(userId: string) {
-    return this.db.postComment.findMany({
+  async incrementCommentCount({
+    amount,
+    postId,
+  }: {
+    amount: number;
+    postId: string;
+  }) {
+    return this.db.post.update({
+      data: {
+        totalComments: {
+          increment: amount,
+        },
+      },
       where: {
-        authorId: userId,
+        id: postId,
+      },
+    });
+  }
+
+  async decrementCommentCount({
+    amount,
+    postId,
+  }: {
+    amount: number;
+    postId: string;
+  }) {
+    return this.db.post.update({
+      data: {
+        totalComments: {
+          decrement: amount,
+        },
+      },
+      where: {
+        id: postId,
       },
     });
   }

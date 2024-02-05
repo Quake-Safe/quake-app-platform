@@ -258,6 +258,11 @@ export class PostController {
         },
       });
 
+      await this.postService.incrementCommentCount({
+        postId: id,
+        amount: 1,
+      });
+
       return ApiResponseDto.success(PostCommentDto.fromPostComment(comment));
     } catch (error) {
       return ApiResponseDto.error(error);
@@ -294,6 +299,11 @@ export class PostController {
 
       const deletedComment = await this.commentsService.deleteOne({
         id: commentId,
+      });
+
+      await this.postService.decrementCommentCount({
+        postId: id,
+        amount: 1,
       });
 
       return ApiResponseDto.success(
