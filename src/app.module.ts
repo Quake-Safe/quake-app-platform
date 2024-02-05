@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { PostModule } from './post/post.module';
 import { MediaModule } from './media/media.module';
+import { PostCommentModule } from './post-comment/post-comment.module';
 
 const config = ConfigModule.forRoot({
   isGlobal: true,
@@ -32,7 +33,7 @@ const config = ConfigModule.forRoot({
     UserProfileModule,
     PostModule,
     MediaModule,
+    PostCommentModule,
   ],
-  providers: [],
 })
 export class AppModule {}

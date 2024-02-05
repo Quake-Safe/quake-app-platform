@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Request,
@@ -30,12 +31,19 @@ import { ApiResponseDto } from 'src/common/dtos/api-response-dto';
 import { ApiOkResponseCommon } from 'src/common/decorators/api-ok-response-decorator';
 import { RoleAuthGuard } from 'src/auth/guards/role-auth.guard';
 import { AuthRoles } from 'src/auth/reflectors/auth-roles.reflector';
+import { PostCommentService } from 'src/post-comment/post-comment.service';
+import { PostCommentDto } from 'src/post-comment/dtos/post-comment.dto';
+import { PostCommentCreateOneDto } from 'src/post-comment/dtos/post-comment-create-one.dto';
+import { PostCommentUpdateOneDto } from 'src/post-comment/dtos/post-comment-update-one.dto';
 @ApiTags('Post')
 @ApiBearerAuth()
 @UseGuards(SupabaseAuthGuard)
 @Controller('post')
 export class PostController {
-  constructor(private postService: PostService) {}
+  constructor(
+    private postService: PostService,
+    private commentsService: PostCommentService,
+  ) {}
 
   @Post('/create')
   @AuthRoles(['GOVERNMENT_AGENCY'])
@@ -194,6 +202,149 @@ export class PostController {
       });
 
       return ApiResponseDto.success('Post unliked');
+    } catch (error) {
+      return ApiResponseDto.error(String(error));
+    }
+  }
+
+  @Get('/:id/comments')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the post to get comments from.',
+  })
+  @ApiOkArrayResponseCommon(PostCommentDto)
+  async getAllCommentsFromPost(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+  ) {
+    try {
+      const comments = await this.commentsService.getAll({
+        where: {
+          postId: id,
+        },
+      });
+
+      return ApiResponseDto.success(
+        comments.map((comment) => PostCommentDto.fromPostComment(comment)),
+      );
+    } catch (error) {
+      return ApiResponseDto.error(error);
+    }
+  }
+
+  @Post('/:id/comments')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the post to create a comment for.',
+  })
+  @ApiCreatedResponseCommon(PostCommentDto)
+  async createComment(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() createOneDto: PostCommentCreateOneDto,
+  ) {
+    try {
+      const comment = await this.commentsService.createOne({
+        content: createOneDto.content,
+        author: {
+          connect: {
+            id: req.user.id,
+          },
+        },
+        post: {
+          connect: {
+            id: id,
+          },
+        },
+      });
+
+      return ApiResponseDto.success(PostCommentDto.fromPostComment(comment));
+    } catch (error) {
+      return ApiResponseDto.error(error);
+    }
+  }
+
+  @Delete('/:id/comments/:commentId')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the post to delete a comment from.',
+  })
+  @ApiParam({
+    name: 'commentId',
+    description: 'The id of the comment to be deleted.',
+  })
+  @ApiOkResponseCommon(PostCommentDto)
+  async deleteComment(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Param('commentId') commentId: string,
+  ) {
+    try {
+      const comment = await this.commentsService.getOne({
+        id: commentId,
+      });
+
+      if (!comment) {
+        throw new Error('Comment not found');
+      }
+
+      if (comment.authorId !== req.user.id) {
+        throw new Error('You are not allowed to delete this comment');
+      }
+
+      const deletedComment = await this.commentsService.deleteOne({
+        id: commentId,
+      });
+
+      return ApiResponseDto.success(
+        PostCommentDto.fromPostComment(deletedComment),
+      );
+    } catch (error) {
+      return ApiResponseDto.error(String(error));
+    }
+  }
+
+  @Patch('/:id/comments/:commentId/')
+  @ApiParam({
+    name: 'id',
+    description: 'The id of the post to update a comment from.',
+  })
+  @ApiParam({
+    name: 'commentId',
+    description: 'The id of the comment to be updated.',
+  })
+  @ApiOkResponseCommon(PostCommentDto)
+  async updateComment(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Param('commentId') commentId: string,
+    @Body() updateOneDto: PostCommentUpdateOneDto,
+  ) {
+    try {
+      const comment = await this.commentsService.getOne({
+        id: commentId,
+      });
+
+      if (!comment) {
+        throw new Error('Comment not found');
+      }
+
+      if (comment.authorId !== req.user.id) {
+        throw new Error('You are not allowed to update this comment');
+      }
+
+      const updatedComment = await this.commentsService.updateOne({
+        where: {
+          id: commentId,
+        },
+        input: {
+          content: updateOneDto.content,
+        },
+      });
+
+      return ApiResponseDto.success(
+        PostCommentDto.fromPostComment(updatedComment),
+      );
     } catch (error) {
       return ApiResponseDto.error(String(error));
     }
