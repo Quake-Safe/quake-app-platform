@@ -42,4 +42,49 @@ export class PostCommentService {
       where: where,
     });
   }
+
+  async hasLikedComment({
+    userId,
+    commentId,
+  }: {
+    userId: string;
+    commentId: string;
+  }) {
+    return this.db.userLikes.findFirst({
+      where: {
+        authorId: userId,
+        commentId: commentId,
+      },
+    });
+  }
+
+  async likeComment({
+    commentId,
+    userId,
+  }: {
+    userId: string;
+    commentId: string;
+  }) {
+    return await this.db.userLikes.create({
+      data: {
+        authorId: userId,
+        commentId: commentId,
+      },
+    });
+  }
+
+  async unlikeComment({
+    commentId,
+    userId,
+  }: {
+    userId: string;
+    commentId: string;
+  }) {
+    return await this.db.userLikes.deleteMany({
+      where: {
+        authorId: userId,
+        commentId: commentId,
+      },
+    });
+  }
 }

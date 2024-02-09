@@ -21,6 +21,9 @@ export class PostCommentDto {
   @ApiProperty()
   postId: string;
 
+  @ApiProperty()
+  parentId?: string | null;
+
   static fromPostComment(postComment: PostComment): PostCommentDto {
     return {
       id: postComment.id,
@@ -30,6 +33,7 @@ export class PostCommentDto {
       content: postComment.content,
       authorId: postComment.authorId,
       postId: postComment.postId,
+      parentId: postComment.parentId,
     };
   }
 }

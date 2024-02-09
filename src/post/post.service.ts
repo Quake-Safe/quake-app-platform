@@ -112,7 +112,7 @@ export class PostService {
     userId: string;
     postId: string;
   }) {
-    const postLike = await this.db.postLikes.findFirst({
+    const postLike = await this.db.userLikes.findFirst({
       where: {
         authorId: userId,
         postId: postId,
@@ -126,7 +126,7 @@ export class PostService {
 
   async likePost({ userId, postId }: { userId: string; postId: string }) {
     return this.db.$transaction(async (db) => {
-      await db.postLikes.create({
+      await db.userLikes.create({
         data: {
           authorId: userId,
           postId: postId,
@@ -154,7 +154,7 @@ export class PostService {
 
   async unlikePost({ userId, postId }: { userId: string; postId: string }) {
     return this.db.$transaction(async (db) => {
-      const like = await db.postLikes.findFirst({
+      const like = await db.userLikes.findFirst({
         where: {
           authorId: userId,
           postId: postId,
@@ -180,7 +180,7 @@ export class PostService {
         },
       });
 
-      await db.postLikes.delete({
+      await db.userLikes.delete({
         where: {
           id: like.id,
         },
@@ -191,7 +191,7 @@ export class PostService {
   }
 
   async getAllUserLikes(userId: string) {
-    return this.db.postLikes.findMany({
+    return this.db.userLikes.findMany({
       where: {
         authorId: userId,
       },

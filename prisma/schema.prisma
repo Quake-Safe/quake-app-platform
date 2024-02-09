@@ -39,10 +39,11 @@ model UserProfile {
   stories PostStory[]
   posts   Post[]
 
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  comments  PostComment[]
-  likes     PostLikes[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments PostComment[]
+  likes    UserLikes[]
 
   @@map("user_profiles")
 }
@@ -128,7 +129,7 @@ model Post {
   // The total number of likes that post has this is used to display the total number of likes
   // a
   totalLikes Int         @default(0)
-  likes      PostLikes[]
+  likes      UserLikes[]
 
   @@map("posts")
 }
@@ -150,10 +151,18 @@ model PostComment {
   postId String
   post   Post   @relation(fields: [postId], references: [id])
 
+  // The parent comment
+  parentId String?       @map("parentId")
+  parent   PostComment?  @relation("post_comments_children", fields: [parentId], references: [id])
+  children PostComment[] @relation("post_comments_children")
+
+  likes UserLikes[]
+
   @@map("post_comments")
 }
 
-model PostLikes {
+/// This will be used to store the likes of the user to the post and comments
+model UserLikes {
   id String @id @default(uuid())
 
   createdAt DateTime @default(now())
@@ -165,8 +174,11 @@ model PostLikes {
   authorId String
   author   UserProfile @relation(fields: [authorId], references: [id])
 
-  postId String
-  post   Post   @relation(fields: [postId], references: [id])
+  postId String?
+  post   Post?   @relation(fields: [postId], references: [id])
 
-  @@map("post_likes")
+  comment   PostComment? @relation(fields: [commentId], references: [id])
+  commentId String?
+
+  @@map("user_likes")
 }

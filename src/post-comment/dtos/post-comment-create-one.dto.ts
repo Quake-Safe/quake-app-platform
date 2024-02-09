@@ -7,4 +7,17 @@ export class PostCommentCreateOneDto {
   })
   @IsNotEmpty()
   content: string;
+
+  @ApiProperty({
+    description: 'The id of the post to create the comment for.',
+  })
+  @IsNotEmpty()
+  postId: string;
+
+  @ApiProperty({
+    description: 'The id of the parent comment.',
+    required: false,
+    nullable: true,
+  })
+  parentId?: string;
 }
