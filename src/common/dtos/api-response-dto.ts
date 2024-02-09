@@ -1,11 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ApiResponseDto<T> {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'The status of the response.',
+  })
   status: string;
-  @ApiProperty()
+  @ApiProperty({
+    description: 'The message of the response.',
+  })
   message: string;
 
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'The data of the response.',
+  })
   data: T | null;
 
   constructor(status: string, message: string, data: T | null) {

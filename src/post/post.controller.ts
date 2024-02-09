@@ -24,12 +24,14 @@ import { ApiCreatedResponseCommon } from 'src/common/decorators/api-created-resp
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { PostCreateOneDto } from './dtos/post-create-one.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiOkArrayResponseCommon } from 'src/common/decorators/api-ok-array-response-decorator';
 import { PostDto } from './dtos/post-dto';
 import { ApiResponseDto } from 'src/common/dtos/api-response-dto';
 import { ApiOkResponseCommon } from 'src/common/decorators/api-ok-response-decorator';
 import { RoleAuthGuard } from 'src/auth/guards/role-auth.guard';
 import { AuthRoles } from 'src/auth/reflectors/auth-roles.reflector';
+import { ApiOkPaginatedResponseCommon } from 'src/common/decorators/api-ok-paginated-response-decorator';
+import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
+import { ApiPaginatedResponseDto } from 'src/common/dtos/api-paginated-response-dto';
 @ApiTags('Post')
 @ApiBearerAuth()
 @UseGuards(SupabaseAuthGuard)
@@ -74,16 +76,21 @@ export class PostController {
     description: 'The author id of the posts.',
     required: false,
   })
-  @ApiOkArrayResponseCommon(PostDto)
+  @ApiOkPaginatedResponseCommon(PostDto)
   async getAll(
     @Request() req: RequestWithUser,
+    @Query('pagination') pagination: PaginationQueryDto,
     @Query('author') author?: string,
   ) {
     try {
-      const posts = await this.postService.getAll({
-        author: {
-          id: author,
+      const [posts, meta] = await this.postService.getAllPaginated({
+        where: {
+          author: {
+            id: author,
+          },
         },
+        limit: pagination?.limit,
+        page: pagination?.page,
       });
 
       const likedPostIds = new Set(
@@ -98,9 +105,16 @@ export class PostController {
         return PostDto.fromPost(post, hasLiked);
       });
 
-      return ApiResponseDto.success(postDtos);
+      return ApiPaginatedResponseDto.success(postDtos, {
+        currentPage: meta.currentPage,
+        perPage: pagination?.limit ?? 10,
+        lastPage: meta.pageCount,
+        next: meta.nextPage,
+        prev: meta.previousPage,
+        total: meta.totalCount,
+      });
     } catch (error) {
-      return ApiResponseDto.error(error);
+      return ApiPaginatedResponseDto.error(error);
     }
   }
 

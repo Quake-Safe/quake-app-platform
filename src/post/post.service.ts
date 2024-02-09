@@ -95,6 +95,30 @@ export class PostService {
     });
   }
 
+  async getAllPaginated({
+    where,
+    limit = 10,
+    page = 1,
+  }: {
+    where: Prisma.PostWhereInput;
+    limit?: number;
+    page?: number;
+  }) {
+    return this.db.paginated.post
+      .paginate({
+        where: where,
+        include: {
+          author: true,
+          media: true,
+        },
+      })
+      .withPages({
+        includePageCount: true,
+        limit: limit,
+        page: page,
+      });
+  }
+
   async getOne(where: Prisma.PostWhereUniqueInput) {
     return this.db.post.findUnique({
       where,

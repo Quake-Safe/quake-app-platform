@@ -22,6 +22,8 @@ import { PostService } from 'src/post/post.service';
 import { ApiOkResponseCommon } from 'src/common/decorators/api-ok-response-decorator';
 import { PostCommentUpdateOneDto } from './dtos/post-comment-update-one.dto';
 import { SupabaseAuthGuard } from 'src/auth/guards/supabase-auth.guard';
+import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
+import { ApiPaginatedResponseDto } from 'src/common/dtos/api-paginated-response-dto';
 
 @ApiTags('Post Comment')
 @ApiBearerAuth()
@@ -40,22 +42,33 @@ export class PostCommentController {
   })
   @ApiOkArrayResponseCommon(PostCommentDto)
   async getAllCommentsFromPost(
-    @Request() req: RequestWithUser,
     @Query('postId') postId: string,
+    @Query('pagination') pagination: PaginationQueryDto,
   ) {
     try {
-      const comments = await this.commentsService.getAll({
+      const [comments, meta] = await this.commentsService.getAllPaginated({
         where: {
           postId: postId,
           parentId: null,
         },
+
+        limit: pagination.limit,
+        page: pagination.page,
       });
 
-      return ApiResponseDto.success(
+      return ApiPaginatedResponseDto.success(
         comments.map((comment) => PostCommentDto.fromPostComment(comment)),
+        {
+          currentPage: meta.currentPage,
+          lastPage: meta.pageCount,
+          next: meta.nextPage,
+          perPage: pagination.limit,
+          prev: meta.previousPage,
+          total: meta.totalCount,
+        },
       );
     } catch (error) {
-      return ApiResponseDto.error(error);
+      return ApiPaginatedResponseDto.error(error);
     }
   }
 

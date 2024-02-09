@@ -18,6 +18,29 @@ export class PostCommentService {
     });
   }
 
+  async getAllPaginated({
+    where,
+    limit = 10,
+    page = 1,
+  }: {
+    where: Prisma.PostCommentWhereInput;
+    limit: number;
+    page: number;
+  }) {
+    return this.db.paginated.postComment
+      .paginate({
+        where: where,
+        include: {
+          author: true,
+        },
+      })
+      .withPages({
+        includePageCount: true,
+        limit: limit,
+        page: page,
+      });
+  }
+
   async createOne(input: Prisma.PostCommentCreateInput) {
     return this.db.postComment.create({
       data: input,
