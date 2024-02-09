@@ -15,6 +15,9 @@ export class PostCommentService {
   async getAll({ where }: { where: Prisma.PostCommentWhereInput }) {
     return this.db.postComment.findMany({
       where: where,
+      orderBy: {
+        createdAt: 'desc',
+      },
       include: {
         author: true,
         children: {
@@ -39,6 +42,9 @@ export class PostCommentService {
     return this.db.paginated.postComment
       .paginate({
         where: where,
+        orderBy: {
+          createdAt: 'desc',
+        },
         include: {
           author: true,
           children: {

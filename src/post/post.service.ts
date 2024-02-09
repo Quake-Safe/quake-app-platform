@@ -88,6 +88,9 @@ export class PostService {
   async getAll(where: Prisma.PostWhereInput) {
     return this.db.post.findMany({
       where,
+      orderBy: {
+        createdAt: 'desc',
+      },
       include: {
         author: true,
         media: true,
@@ -107,6 +110,9 @@ export class PostService {
     return this.db.paginated.post
       .paginate({
         where: where,
+        orderBy: {
+          createdAt: 'desc',
+        },
         include: {
           author: true,
           media: true,
