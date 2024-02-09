@@ -88,6 +88,30 @@ export class PostCommentController {
     }
   }
 
+  @Get('/:commentId')
+  @ApiParam({
+    name: 'commentId',
+    description: 'The id of the comment to get.',
+  })
+  @ApiOkResponseCommon(PostCommentDto)
+  async getComment(@Param('commentId') commentId: string) {
+    try {
+      const comment = await this.commentsService.getOne({
+        id: commentId,
+      });
+
+      if (!comment) {
+        throw new Error('Comment not found');
+      }
+
+      return ApiResponseDto.success(
+        PostCommentDto.fromPostCommentExtended(comment),
+      );
+    } catch (error) {
+      return ApiResponseDto.error(String(error));
+    }
+  }
+
   @Post('/')
   @ApiCreatedResponseCommon(PostCommentDto)
   async createComment(

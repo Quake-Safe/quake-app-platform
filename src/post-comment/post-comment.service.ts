@@ -9,6 +9,15 @@ export class PostCommentService {
   async getOne(where: Prisma.PostCommentWhereUniqueInput) {
     return this.db.postComment.findUnique({
       where: where,
+      include: {
+        author: true,
+        children: {
+          select: {
+            id: true,
+          },
+        },
+        likes: true,
+      },
     });
   }
 
