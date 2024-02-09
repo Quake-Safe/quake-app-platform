@@ -40,8 +40,14 @@ export class PostCommentController {
     name: 'postId',
     description: 'The id of the post to get comments from.',
   })
+  @ApiQuery({
+    name: 'parentId',
+    description: 'The id of the parent comment to get replies from.',
+    required: false,
+  })
   @ApiOkPaginatedResponseCommon(PostCommentDto)
-  async getAllCommentsFromPost(
+  async getAllComments(
+    @Request() req: RequestWithUser,
     @Query('postId') postId: string,
     @Query() pagination: PaginationQueryDto,
     @Query('parentId') parentId?: string | null,
@@ -50,16 +56,24 @@ export class PostCommentController {
       const [comments, meta] = await this.commentsService.getAllPaginated({
         where: {
           postId: postId,
-          parentId: parentId,
+          // If parentId is undefined, we want to get the top-level comments
+          parentId: parentId === undefined ? null : parentId,
         },
         limit: pagination.limit,
         page: pagination.page,
       });
 
       return ApiPaginatedResponseDto.success(
-        comments.map((comment) =>
-          PostCommentDto.fromPostCommentExtended(comment),
-        ),
+        comments.map((comment) => {
+          const hasLiked = comment.likes.some(
+            (like) => like.authorId === req.user.id,
+          );
+
+          const commentDto = PostCommentDto.fromPostCommentExtended(comment);
+          commentDto.hasLiked = hasLiked;
+
+          return commentDto;
+        }),
         {
           currentPage: meta.currentPage,
           lastPage: meta.pageCount,

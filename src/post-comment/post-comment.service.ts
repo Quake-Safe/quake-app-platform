@@ -18,9 +18,8 @@ export class PostCommentService {
       include: {
         author: true,
         children: {
-          include: {
-            author: true,
-            likes: true,
+          select: {
+            id: true,
           },
         },
         likes: true,
@@ -43,9 +42,8 @@ export class PostCommentService {
         include: {
           author: true,
           children: {
-            include: {
-              author: true,
-              likes: true,
+            select: {
+              id: true,
             },
           },
           likes: true,

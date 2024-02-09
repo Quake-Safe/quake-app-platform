@@ -1,4 +1,4 @@
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { AuthorDto } from 'src/common/dtos/author.dto';
 
@@ -7,9 +7,8 @@ type PostCommentWithAuthorAndReplies = Prisma.PostCommentGetPayload<{
     author: true;
     likes: true;
     children: {
-      include: {
-        author: true;
-        likes: true;
+      select: {
+        id: true;
       };
     };
   };
@@ -23,45 +22,64 @@ type PostCommentWithAuthor = Prisma.PostCommentGetPayload<{
 }>;
 
 export class PostCommentDto {
-  @ApiProperty()
+  @ApiProperty({
+    type: 'string',
+    required: true,
+    description: 'The id of the comment.',
+  })
   id: string;
-  @ApiProperty()
+  @ApiProperty({
+    type: Date,
+    required: true,
+    description: 'The date the comment was created.',
+    example: '2021-08-01T00:00:00.000Z',
+  })
   createdAt: Date;
-  @ApiProperty()
+  @ApiProperty({
+    type: Date,
+    required: true,
+    description: 'The date the comment was last updated.',
+    example: '2021-08-01T00:00:00.000Z',
+  })
   updatedAt: Date;
   @ApiProperty({
     type: Date,
     required: false,
     nullable: true,
+    description: 'The date the comment was deleted.',
+    example: '2021-08-01T00:00:00.000Z',
   })
   deletedAt: Date | null;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: 'string',
+    required: true,
+    description: 'The content of the comment.',
+  })
   content: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: 'string',
+    required: true,
+    description: 'The id of the author of this comment.',
+  })
   authorId: string;
 
-  @ApiProperty({ type: AuthorDto })
+  @ApiProperty({ type: AuthorDto, description: 'The author of this comment' })
   author: AuthorDto;
 
-  @ApiProperty()
-  postId: string;
-
   @ApiProperty({
-    type: 'array',
-    items: {
-      $ref: getSchemaPath(PostCommentDto),
-    },
-    required: false,
-    nullable: true,
+    type: 'string',
+    required: true,
+    description: 'The id of the post this comment belongs to.',
   })
-  replies: PostCommentDto[] = [];
+  postId: string;
 
   @ApiProperty({
     type: 'string',
     required: false,
     nullable: true,
+    description: 'The id of the parent comment.',
   })
   parentId?: string | null;
 
@@ -69,6 +87,7 @@ export class PostCommentDto {
     type: 'number',
     default: 0,
     required: false,
+    description: 'The total number of likes to this comment.',
   })
   totalLikes: number = 0;
 
@@ -76,6 +95,7 @@ export class PostCommentDto {
     type: 'number',
     default: 0,
     required: false,
+    description: 'The total number of replies to this comment.',
   })
   totalReplies: number = 0;
 
@@ -83,15 +103,9 @@ export class PostCommentDto {
     type: 'boolean',
     default: false,
     required: false,
+    description: 'Whether the current user has liked this comment.',
   })
   hasLiked: boolean = false;
-
-  @ApiProperty({
-    type: 'boolean',
-    default: false,
-    required: false,
-  })
-  hasReplied: boolean = false;
 
   static fromPostComment(postComment: PostCommentWithAuthor) {
     const comment = new PostCommentDto();
@@ -104,11 +118,14 @@ export class PostCommentDto {
     comment.author = AuthorDto.fromUserProfile(postComment.author);
     comment.postId = postComment.postId;
     comment.totalLikes = postComment.likes.length;
+    comment.totalReplies = 0;
 
     return comment;
   }
 
-  static fromPostCommentExtended(postComment: PostCommentWithAuthorAndReplies) {
+  static fromPostCommentExtended(
+    postComment: PostCommentWithAuthorAndReplies,
+  ): PostCommentDto {
     const comment = new PostCommentDto();
     comment.id = postComment.id;
     comment.createdAt = postComment.createdAt;
@@ -116,14 +133,13 @@ export class PostCommentDto {
     comment.deletedAt = postComment.deletedAt;
     comment.content = postComment.content;
     comment.authorId = postComment.author.id;
-
     comment.author = AuthorDto.fromUserProfile(postComment.author);
     comment.postId = postComment.postId;
-    comment.replies = postComment.children.map((child) =>
-      PostCommentDto.fromPostComment(child),
-    );
+
     comment.totalLikes = postComment.likes.length;
     comment.totalReplies = postComment.children.length;
+
+    comment.hasLiked = false;
     return comment;
   }
 }
