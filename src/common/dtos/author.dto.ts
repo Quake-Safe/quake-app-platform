@@ -59,6 +59,14 @@ export class AuthorDto {
   })
   fullName?: string | null;
 
+  @ApiProperty({
+    type: 'string',
+    description: 'The avatar url of the user.',
+    required: false,
+    nullable: true,
+  })
+  avatarUrl?: string | null;
+
   static fromUserProfile(user: UserProfile): AuthorDto {
     return {
       id: user.id,
@@ -69,6 +77,7 @@ export class AuthorDto {
       middleName: user.middleName,
       shortName: user.shortName,
       fullName: user.fullName,
+      avatarUrl: user.avatarUrl,
     };
   }
 }
