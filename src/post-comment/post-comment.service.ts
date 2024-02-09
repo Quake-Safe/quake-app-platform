@@ -15,6 +15,16 @@ export class PostCommentService {
   async getAll({ where }: { where: Prisma.PostCommentWhereInput }) {
     return this.db.postComment.findMany({
       where: where,
+      include: {
+        author: true,
+        children: {
+          include: {
+            author: true,
+            likes: true,
+          },
+        },
+        likes: true,
+      },
     });
   }
 
@@ -32,6 +42,13 @@ export class PostCommentService {
         where: where,
         include: {
           author: true,
+          children: {
+            include: {
+              author: true,
+              likes: true,
+            },
+          },
+          likes: true,
         },
       })
       .withPages({
@@ -44,12 +61,20 @@ export class PostCommentService {
   async createOne(input: Prisma.PostCommentCreateInput) {
     return this.db.postComment.create({
       data: input,
+      include: {
+        author: true,
+        likes: true,
+      },
     });
   }
 
   async deleteOne(where: Prisma.PostCommentWhereUniqueInput) {
     return this.db.postComment.delete({
       where: where,
+      include: {
+        author: true,
+        likes: true,
+      },
     });
   }
 
@@ -63,6 +88,10 @@ export class PostCommentService {
     return this.db.postComment.update({
       data: input,
       where: where,
+      include: {
+        author: true,
+        likes: true,
+      },
     });
   }
 

@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ApiOkArrayResponseCommon } from 'src/common/decorators/api-ok-array-response-decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { PostCommentService } from './post-comment.service';
 import { PostCommentDto } from './dtos/post-comment.dto';
@@ -24,8 +23,9 @@ import { PostCommentUpdateOneDto } from './dtos/post-comment-update-one.dto';
 import { SupabaseAuthGuard } from 'src/auth/guards/supabase-auth.guard';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ApiPaginatedResponseDto } from 'src/common/dtos/api-paginated-response-dto';
+import { ApiOkPaginatedResponseCommon } from 'src/common/decorators/api-ok-paginated-response-decorator';
 
-@ApiTags('Post Comment')
+@ApiTags('Comments')
 @ApiBearerAuth()
 @UseGuards(SupabaseAuthGuard)
 @Controller('comments')
@@ -40,24 +40,26 @@ export class PostCommentController {
     name: 'postId',
     description: 'The id of the post to get comments from.',
   })
-  @ApiOkArrayResponseCommon(PostCommentDto)
+  @ApiOkPaginatedResponseCommon(PostCommentDto)
   async getAllCommentsFromPost(
     @Query('postId') postId: string,
-    @Query('pagination') pagination: PaginationQueryDto,
+    @Query() pagination: PaginationQueryDto,
+    @Query('parentId') parentId?: string | null,
   ) {
     try {
       const [comments, meta] = await this.commentsService.getAllPaginated({
         where: {
           postId: postId,
-          parentId: null,
+          parentId: parentId,
         },
-
         limit: pagination.limit,
         page: pagination.page,
       });
 
       return ApiPaginatedResponseDto.success(
-        comments.map((comment) => PostCommentDto.fromPostComment(comment)),
+        comments.map((comment) =>
+          PostCommentDto.fromPostCommentExtended(comment),
+        ),
         {
           currentPage: meta.currentPage,
           lastPage: meta.pageCount,
@@ -186,28 +188,6 @@ export class PostCommentController {
 
       return ApiResponseDto.success(
         PostCommentDto.fromPostComment(updatedComment),
-      );
-    } catch (error) {
-      return ApiResponseDto.error(String(error));
-    }
-  }
-
-  @Get('/:commentId')
-  @ApiParam({
-    name: 'commentId',
-    description: 'The id of the parent comment to get the children comments.',
-  })
-  @ApiOkArrayResponseCommon(PostCommentDto)
-  async getChildComments(@Param('commentId') commentId: string) {
-    try {
-      const comments = await this.commentsService.getAll({
-        where: {
-          parentId: commentId,
-        },
-      });
-
-      return ApiResponseDto.success(
-        comments.map((comment) => PostCommentDto.fromPostComment(comment)),
       );
     } catch (error) {
       return ApiResponseDto.error(String(error));

@@ -79,7 +79,7 @@ export class PostController {
   @ApiOkPaginatedResponseCommon(PostDto)
   async getAll(
     @Request() req: RequestWithUser,
-    @Query('pagination') pagination: PaginationQueryDto,
+    @Query() pagination: PaginationQueryDto,
     @Query('author') author?: string,
   ) {
     try {
@@ -114,7 +114,7 @@ export class PostController {
         total: meta.totalCount,
       });
     } catch (error) {
-      return ApiPaginatedResponseDto.error(error);
+      return ApiPaginatedResponseDto.error(String(error));
     }
   }
 
