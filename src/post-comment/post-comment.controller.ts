@@ -94,7 +94,10 @@ export class PostCommentController {
     description: 'The id of the comment to get.',
   })
   @ApiOkResponseCommon(PostCommentDto)
-  async getComment(@Param('commentId') commentId: string) {
+  async getComment(
+    @Request() req: RequestWithUser,
+    @Param('commentId') commentId: string,
+  ) {
     try {
       const comment = await this.commentsService.getOne({
         id: commentId,
@@ -104,9 +107,12 @@ export class PostCommentController {
         throw new Error('Comment not found');
       }
 
-      return ApiResponseDto.success(
-        PostCommentDto.fromPostCommentExtended(comment),
+      const postCommentDto = PostCommentDto.fromPostCommentExtended(comment);
+      postCommentDto.hasLiked = comment.likes.some(
+        (like) => like.authorId === req.user.id,
       );
+
+      return ApiResponseDto.success(postCommentDto);
     } catch (error) {
       return ApiResponseDto.error(String(error));
     }
